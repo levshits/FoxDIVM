@@ -58,28 +58,23 @@ class Main < FXMainWindow
       (0...@grid.numRows).each{|i| @grid.setItemText(i,@grid.numRows+1,'')}
       matrix = matrix.map {|array| Vector[*array]}
       slae = Slae.new(matrix)
-      result = 0
-      case variant
-        when(0)
-          result = slae.solve_by_gauss
-        when(1)
-          result = slae.solve_by_holetsky
-        when(2)
-          result = slae.solve_by_lu
+      result = []
+      begin
+        case variant
+          when(0)
+            result = slae.solve_by_gauss
+          when(1)
+            result = slae.solve_by_holetsky
+          when(2)
+            result = slae.solve_by_lu
 
+        end
+        (0...@grid.numRows).each{|i| @grid.setItemText(i,@grid.numRows+1,result[i].round(3).to_s)}
+        FXMessageBox.new(self, 'Result','The system has successfully solved!',:opts=>MBOX_OK).execute
+      rescue Exception
+        FXMessageBox.new(self, 'Warning',"#{$!}",:opts=>MBOX_OK).execute
       end
       p result
-      case result
-        when(1)
-          FXMessageBox.new(self, 'Result','Unlimited count of solutions',:opts=>MBOX_OK).execute
-        when(2)
-          FXMessageBox.new(self, 'Result','No solution!',:opts=>MBOX_OK).execute
-        when(3)
-          (0...@grid.numRows).each{|i| @grid.setItemText(i,@grid.numRows+1,slae.get_slae(i,-1).round(3).to_s)}
-          FXMessageBox.new(self, 'Result','The system has successfully solved!',:opts=>MBOX_OK).execute
-        when(4)
-          FXMessageBox.new(self, 'Result',"System can't be solved by Holetsky method!",:opts=>MBOX_OK).execute
-      end
     end
   end
 end

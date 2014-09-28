@@ -5,6 +5,14 @@ class Vector
     self * (1 / arg)
   end
 end
+class NoSolutionExeption<Exception
+end
+class UnlimitedCountOfSolutions<Exception
+end
+class HoletskyProblem<Exception
+end
+class LUProblem<Exception
+end
 class Slae
 
   def initialize(n)
@@ -25,13 +33,19 @@ class Slae
     (0...u_matrix.size).each{|i|
       (0...u_matrix.size).each{|j|
         u_matrix[0][i] = @slae[0][i]
+        if u_matrix[0][0]==0
+          raise LUProblem
+        end
         l_matrix[i][0] = @slae[i][0] / u_matrix[0][0]
         sum = 0
-        (0...u_matrix.size).each{|k| sum += l_matrix[i][k] * u_matrix[k][j]}
+        (0...i).each{|k| sum += l_matrix[i][k] * u_matrix[k][j]}
         u_matrix[i][j] = @slae[i][j] - sum;
         if i<=j
           sum = 0
           (0...i).each{|k| sum += l_matrix[j][k] * u_matrix[k][i]}
+          if u_matrix[i][i]==0
+            raise LUProblem,"The system can't be solved by LU"
+          end
           l_matrix[j][i] = (@slae[j][i]-sum)/u_matrix[i][i]
         end
 
@@ -42,17 +56,23 @@ class Slae
     (0...@slae.size).each{|i|
       sum = 0
       (0...i).each{|j| sum+=y[j]*l_matrix[i][j]}
+      if l_matrix[i][i]==0
+        raise LUProblem,"The system can't be solved by LU"
+      end
       y[i] = (@slae[i][-1]-sum)/l_matrix[i][i]
     }
     x = Array.new(@slae.size,0)
     (0...@slae.size).to_a.reverse.each{|i|
       sum = 0
       (i+1...@slae.size).each{|j| sum+=y[j]*u_matrix[i][j]}
+      if u_matrix[i][i]==0
+        raise LUProblem,"The system can't be solved by LU"
+      end
       x[i] = (y[i]-sum)/u_matrix[i][i]
     }
     p y
-    p x
-    return 1
+    p
+    return x
 
   end
   def solve_by_gauss
@@ -75,21 +95,23 @@ class Slae
         else
           (0...@slae.size).each{|j|
             if @slae[i][j]!=0
-              return 1
+              raise UnlimitedCountOfSolutions,"Unlimited count of solutions"
             end}
-          return 2
+          raise NoSolutionExeption,"No solution"
         end
       end}
     if is_unlimited
-      return 1
+      raise UnlimitedCountOfSolutions,"Unlimited count of solutions"
     end
-    3
+    x = []
+    (0...@slae.size).each{|index|x<<@slae[index][-1]}
+    return x
   end
   def solve_by_holetsky
     (0...@slae.size).each{ |i|
       (i...@slae.size).each { |j|
         if @slae[i][j]!=@slae[j][i].conj
-          return 4
+          raise HoletskyProblem,"The system can't be solved by Holetsky"
         end}}
     l_matrix = Array.new(@slae.size){Array.new(@slae.size+1,0)}
 
@@ -100,7 +122,7 @@ class Slae
           temp+=l_matrix[i][k]*l_matrix[j][k]
         }
         if l_matrix[j][j]==0
-          return 4
+          raise HoletskyProblem,"The system can't be solved by Holetsky"
         end
         l_matrix[i][j] = (@slae[i][j] - temp)/l_matrix[j][j]
       }
@@ -116,17 +138,16 @@ class Slae
       }}
     (0...@slae.size).each{|i| l_matrix[i][-1]=@slae[i][-1]}
     l_matrix  = l_matrix.map{ |array| Vector[*array]}
-    buffer_slae = Slae.new(l_matrix)
-    if buffer_slae.solve_by_gauss != 3
-      return 4
+    begin
+      buffer_slae = Slae.new(l_matrix)
+      y = buffer_slae.solve_by_gauss
+      (0...@slae.size).each{|i| lt_matrix[i][-1] = y[i]}
+      lt_matrix  = lt_matrix.map{ |array| Vector[*array]}
+      buffer_slae = Slae.new(lt_matrix)
+      x = buffer_slae.solve_by_gauss
+      rescue Exception
+        raise HoletskyProblem,"The system can't be solved by Holetsky"
     end
-    (0...@slae.size).each{|i| lt_matrix[i][-1] = buffer_slae.get_slae(i, -1)}
-    lt_matrix  = lt_matrix.map{ |array| Vector[*array]}
-    buffer_slae = Slae.new(lt_matrix)
-    if buffer_slae.solve_by_gauss != 3
-      return 4
-    end
-    @slae = buffer_slae.get_full_table
-    3
+    return x
   end
 end
