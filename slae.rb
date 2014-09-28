@@ -19,6 +19,42 @@ class Slae
   def get_size
     @slae.size
   end
+  def solve_by_lu
+    l_matrix = Array.new(@slae.size){Array.new(@slae.size,0)}
+    u_matrix = Array.new(@slae.size){Array.new(@slae.size,0)}
+    (0...u_matrix.size).each{|i|
+      (0...u_matrix.size).each{|j|
+        u_matrix[0][i] = @slae[0][i]
+        l_matrix[i][0] = @slae[i][0] / u_matrix[0][0]
+        sum = 0
+        (0...u_matrix.size).each{|k| sum += l_matrix[i][k] * u_matrix[k][j]}
+        u_matrix[i][j] = @slae[i][j] - sum;
+        if i<=j
+          sum = 0
+          (0...i).each{|k| sum += l_matrix[j][k] * u_matrix[k][i]}
+          l_matrix[j][i] = (@slae[j][i]-sum)/u_matrix[i][i]
+        end
+
+      }}
+    p l_matrix
+    p u_matrix
+    y = Array.new(@slae.size,0)
+    (0...@slae.size).each{|i|
+      sum = 0
+      (0...i).each{|j| sum+=y[j]*l_matrix[i][j]}
+      y[i] = (@slae[i][-1]-sum)/l_matrix[i][i]
+    }
+    x = Array.new(@slae.size,0)
+    (0...@slae.size).to_a.reverse.each{|i|
+      sum = 0
+      (i+1...@slae.size).each{|j| sum+=y[j]*u_matrix[i][j]}
+      x[i] = (y[i]-sum)/u_matrix[i][i]
+    }
+    p y
+    p x
+    return 1
+
+  end
   def solve_by_gauss
     (0...@slae.size).each{ |i|
       max_index = i
@@ -41,7 +77,7 @@ class Slae
     }
     #p @slae
     is_unlimited = false
-    #p @slae
+    p @slae
     (1...@slae.size).to_a.reverse.each{ |i|
       (0...i).each{ |j| @slae[j] -= @slae[i] * @slae[j][i] }
       if @slae[i][i]==0

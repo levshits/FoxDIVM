@@ -5,7 +5,7 @@ class
 Main < FXMainWindow
   def
   initialize(app)
-    super(app, "DIVM", :width => 500, :height => 400)
+    super(app, 'DIVM', :width => 500, :height => 400)
     add_controls
   end
   def
@@ -24,7 +24,7 @@ Main < FXMainWindow
         end
       solve_button = FXButton.new(controls_frame,'Solve',:opts=>BUTTON_NORMAL|LAYOUT_RIGHT)
       method_box = FXComboBox.new(controls_frame,15,:opts=>COMBOBOX_STATIC|FRAME_SUNKEN|FRAME_THICK|LAYOUT_RIGHT)
-      method_box.fillItems ['Gauss','Holetsky']
+      method_box.fillItems %w(Gauss Holetsky LU)
       solve_button.connect(SEL_COMMAND) do
         solve_button_click(method_box.currentItem)
       end
@@ -33,7 +33,7 @@ Main < FXMainWindow
       @grid = FXTable.new(grid_frame,:opts=>LAYOUT_FILL_X|LAYOUT_FILL_Y)
   end
   def enter_button_click(dimensions)
-    p "enter" +dimensions.to_s
+    p 'enter' +dimensions.to_s
     @grid.clearItems
     @grid.insertColumns(0,dimensions+2)
     @grid.insertRows(0,dimensions)
@@ -58,6 +58,8 @@ Main < FXMainWindow
           result = slae.solve_by_gauss
         when(1)
           result = slae.solve_by_holetsky
+        when(2)
+          result = slae.solve_by_lu
 
       end
       p result
