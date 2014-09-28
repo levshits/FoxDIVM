@@ -1,8 +1,14 @@
 require 'fox16'
 require_relative 'slae'
 include Fox
-class
-Main < FXMainWindow
+class Complex
+  def round(n)
+    re = self.real
+    im = self.imaginary
+     Complex(re.round(n), im.round(n))
+  end
+end
+class Main < FXMainWindow
   def
   initialize(app)
     super(app, 'DIVM', :width => 500, :height => 400)
@@ -48,7 +54,7 @@ Main < FXMainWindow
       matrix = Array.new(@grid.numRows){Array.new(@grid.numRows+1,0)}
       (0...@grid.numRows).each{|i|
         (0...@grid.numRows+1).each{|j|
-          matrix[i][j] = @grid.getItem(i,j).to_s.to_f}}
+          matrix[i][j] = @grid.getItem(i,j).to_s.to_c}}
       (0...@grid.numRows).each{|i| @grid.setItemText(i,@grid.numRows+1,'')}
       matrix = matrix.map {|array| Vector[*array]}
       slae = Slae.new(matrix)

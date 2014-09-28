@@ -57,17 +57,6 @@ class Slae
   end
   def solve_by_gauss
     (0...@slae.size).each{ |i|
-      max_index = i
-      max_element = @slae[i][i]
-      (i...@slae.size).each{|j| if @slae[j][i]>max_element
-                                  max_element=@slae[j][i]
-                                  max_index = j
-                                end}
-      if max_index!=i
-        temp = @slae[i]
-        @slae[i] = @slae[max_index]
-        @slae[max_index] = temp
-      end
       if @slae[i][i]!=0
        @slae[i] /= @slae[i][i]
        #p @slae
@@ -99,7 +88,7 @@ class Slae
   def solve_by_holetsky
     (0...@slae.size).each{ |i|
       (i...@slae.size).each { |j|
-        if @slae[i][j]!=@slae[j][i]
+        if @slae[i][j]!=@slae[j][i].conj
           return 4
         end}}
     l_matrix = Array.new(@slae.size){Array.new(@slae.size+1,0)}
@@ -123,10 +112,8 @@ class Slae
     #p l_matrix
     lt_matrix = Array.new(@slae.size){Array.new(@slae.size+1,0)}
     (0...@slae.size).each{ |i| (0...@slae.size).each{|j|
-      lt_matrix[i][j] = l_matrix[j][i]
-      if l_matrix[j][i].is_a?(Complex)
-        return 4
-      end}}
+      lt_matrix[i][j] = l_matrix[j][i].conj
+      }}
     (0...@slae.size).each{|i| l_matrix[i][-1]=@slae[i][-1]}
     l_matrix  = l_matrix.map{ |array| Vector[*array]}
     buffer_slae = Slae.new(l_matrix)
