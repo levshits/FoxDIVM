@@ -69,7 +69,7 @@ class Main < FXMainWindow
             result = slae.solve_by_lu
 
         end
-        (0...@grid.numRows).each{|i| @grid.setItemText(i,@grid.numRows+1,result[i].round(3).to_s)}
+        (0...@grid.numRows).each{|i| @grid.setItemText(i,@grid.numRows+1,result[i].round(2).to_s)}
         FXMessageBox.new(self, 'Result','The system has successfully solved!',:opts=>MBOX_OK).execute
       rescue Exception
         FXMessageBox.new(self, 'Warning',"#{$!}",:opts=>MBOX_OK).execute
